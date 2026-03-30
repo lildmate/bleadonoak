@@ -5,11 +5,21 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "https://bleadonoak.co.uk",
+    "https://www.bleadonoak.co.uk"
+  ]
+}));
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Backend működik");
+});
+
+app.get("/healthz", (req, res) => {
+  res.send("OK");
 });
 
 app.post("/contact", async (req, res) => {
@@ -29,20 +39,22 @@ app.post("/contact", async (req, res) => {
       replyTo: email,
       to: process.env.EMAIL,
       subject: "New client",
-      text: `
-Name: ${nev}
+      text: `Name: ${nev}
 Email: ${email}
 Phone: ${telefon}
 
 Message:
-${uzenet}
-      `,
+${uzenet}`,
     });
 
-    res.json({ success: true });
+    res.json({ success: true, message: "Az üzenet sikeresen elküldve." });
   } catch (error) {
     console.error("Email küldési hiba:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Hiba történt az email küldése közben.",
+      error: error.message,
+    });
   }
 });
 
